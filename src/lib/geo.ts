@@ -37,49 +37,49 @@ const GEO_PRIORITY: Record<string, number[]> = {
   };
 
   const REGION_FLAGS: Record<string, string> = {
-    US: "🇺🇸 United States", CA: "🇨🇦 Canada", MX: "🇲🇽 Mexico",
-    BR: "🇧🇷 Brazil", AR: "🇦🇷 Argentina", CO: "🇨🇴 Colombia",
-    CL: "🇨🇱 Chile", PE: "🇵🇪 Peru", VE: "🇻🇪 Venezuela",
-    PH: "🇵🇭 Philippines", IN: "🇮🇳 India", PK: "🇵🇰 Pakistan",
-    BD: "🇧🇩 Bangladesh", LK: "🇱🇰 Sri Lanka",
-    GB: "🇬🇧 United Kingdom", DE: "🇩🇪 Germany", FR: "🇫🇷 France",
-    ES: "🇪🇸 Spain", IT: "🇮🇹 Italy", NL: "🇳🇱 Netherlands",
-    PT: "🇵🇹 Portugal", AU: "🇦🇺 Australia", NZ: "🇳🇿 New Zealand",
-    TR: "🇹🇷 Turkey", SA: "🇸🇦 Saudi Arabia", AE: "🇦🇪 UAE",
-    NG: "🇳🇬 Nigeria", ZA: "🇿🇦 South Africa", KE: "🇰🇪 Kenya",
-    SG: "🇸🇬 Singapore", MY: "🇲🇾 Malaysia", ID: "🇮🇩 Indonesia",
-    TH: "🇹🇭 Thailand", JP: "🇯🇵 Japan", KR: "🇰🇷 South Korea",
+    US: "\u{1F1FA}\u{1F1F8} United States", CA: "\u{1F1E8}\u{1F1E6} Canada", MX: "\u{1F1F2}\u{1F1FD} Mexico",
+    BR: "\u{1F1E7}\u{1F1F7} Brazil", AR: "\u{1F1E6}\u{1F1F7} Argentina", CO: "\u{1F1E8}\u{1F1F4} Colombia",
+    CL: "\u{1F1E8}\u{1F1F1} Chile", PE: "\u{1F1F5}\u{1F1EA} Peru", VE: "\u{1F1FB}\u{1F1EA} Venezuela",
+    PH: "\u{1F1F5}\u{1F1ED} Philippines", IN: "\u{1F1EE}\u{1F1F3} India", PK: "\u{1F1F5}\u{1F1F0} Pakistan",
+    BD: "\u{1F1E7}\u{1F1E9} Bangladesh", LK: "\u{1F1F1}\u{1F1F0} Sri Lanka",
+    GB: "\u{1F1EC}\u{1F1E7} United Kingdom", DE: "\u{1F1E9}\u{1F1EA} Germany", FR: "\u{1F1EB}\u{1F1F7} France",
+    ES: "\u{1F1EA}\u{1F1F8} Spain", IT: "\u{1F1EE}\u{1F1F9} Italy", NL: "\u{1F1F3}\u{1F1F1} Netherlands",
+    PT: "\u{1F1F5}\u{1F1F9} Portugal", AU: "\u{1F1E6}\u{1F1FA} Australia", NZ: "\u{1F1F3}\u{1F1FF} New Zealand",
+    TR: "\u{1F1F9}\u{1F1F7} Turkey", SA: "\u{1F1F8}\u{1F1E6} Saudi Arabia", AE: "\u{1F1E6}\u{1F1EA} UAE",
+    NG: "\u{1F1F3}\u{1F1EC} Nigeria", ZA: "\u{1F1FF}\u{1F1E6} South Africa", KE: "\u{1F1F0}\u{1F1EA} Kenya",
+    SG: "\u{1F1F8}\u{1F1EC} Singapore", MY: "\u{1F1F2}\u{1F1FE} Malaysia", ID: "\u{1F1EE}\u{1F1E9} Indonesia",
+    TH: "\u{1F1F9}\u{1F1ED} Thailand", JP: "\u{1F1EF}\u{1F1F5} Japan", KR: "\u{1F1F0}\u{1F1F7} South Korea",
   };
 
   export function getRegionLabel(country: string): string {
-    return REGION_FLAGS[country] || "🌍 Global";
+    return REGION_FLAGS[country] ?? "\u{1F30D} Global";
   }
 
   export function geoSort<T extends { id: number; status: string }>(
     streams: T[],
     country: string
   ): (T & { recommended: boolean })[] {
-    const priority = GEO_PRIORITY[country] || [];
+    const priority = GEO_PRIORITY[country] ?? [];
 
-    const scored = streams.map((s) => {
+    const withScore = streams.map((s) => {
       const idx = priority.indexOf(s.id);
-      return { ...s, recommended: false, _score: idx >= 0 ? priority.length - idx : 0 };
+      return { stream: s, score: idx >= 0 ? priority.length - idx : 0 };
     });
 
-    scored.sort((a, b) => {
-      const aOn = a.status === "online" ? 1 : 0;
-      const bOn = b.status === "online" ? 1 : 0;
+    withScore.sort((a, b) => {
+      const aOn = a.stream.status === "online" ? 1 : 0;
+      const bOn = b.stream.status === "online" ? 1 : 0;
       if (aOn !== bOn) return bOn - aOn;
-      return b._score - a._score;
+      return b.score - a.score;
     });
 
     let recs = 0;
-    return scored.map(({ _score, ...s }) => {
-      if (s.status === "online" && _score > 0 && recs < 3) {
-        recs++;
-        return { ...s, recommended: true };
-      }
-      return { ...s, recommended: false };
+    return withScore.map(({ stream, score }) => {
+      const recommended =
+        stream.status === "online" && score > 0 && recs < 3
+          ? (recs++, true)
+          : false;
+      return { ...stream, recommended } as T & { recommended: boolean };
     });
   }
   
