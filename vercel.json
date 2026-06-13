@@ -1,7 +1,3 @@
 {
-  "regions": ["iad1", "sfo1", "lhr1"],
-  "functions": {
-    "src/app/api/proxy/[id]/route.ts": { "maxDuration": 60 },
-    "src/app/api/streams/refresh/route.ts": { "maxDuration": 60 }
-  }
+  "regions": ["iad1"]
 }
