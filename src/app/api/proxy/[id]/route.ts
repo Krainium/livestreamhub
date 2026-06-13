@@ -2,7 +2,6 @@ import type { NextRequest } from "next/server";
 import streamsData from "@/data/streams.json";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
 
 const UA =
   "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
