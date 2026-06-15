@@ -1,4 +1,5 @@
 # ⚽ LiveStream Hub
+## [Watch here](https://livestreamhub.vercel.app/)
 
 Watch football live. Pulls streams from multiple broadcasts, plays them right in your browser — no app, no sign-in.
 
