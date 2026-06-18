@@ -23,7 +23,7 @@ import { headers } from "next/headers";
     }
 
     return (
-      <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-emerald-950 text-white">
+      <main className="relative min-h-screen text-white">
         <div className="mx-auto max-w-7xl px-4 py-8">
           {error ? (
             <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-red-300">

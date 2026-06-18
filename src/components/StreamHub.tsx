@@ -2,6 +2,7 @@
 
   import { useCallback, useEffect, useMemo, useState } from "react";
   import StreamList from "@/components/StreamList";
+  import WorldCupSidebar from "@/components/WorldCupSidebar";
   import VideoPlayer from "@/components/VideoPlayer";
   import type { ManifestInfo, StreamEntry } from "@/types/stream";
   import { recordHistory } from "@/lib/history";
@@ -93,6 +94,7 @@
             )}
           </div>
           <div className="flex gap-2">
+            <WorldCupSidebar />
             <a
               href="https://github.com/Krainium/livestreamhub"
               target="_blank"

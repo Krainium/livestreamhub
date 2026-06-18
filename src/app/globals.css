@@ -17,3 +17,40 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ---- World Cup animated background ---- */
+@keyframes wc-drift-a {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(7vw, 6vh) scale(1.18); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes wc-drift-b {
+  0%   { transform: translate(0, 0) scale(1.1); }
+  50%  { transform: translate(-8vw, -5vh) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1.1); }
+}
+@keyframes wc-drift-c {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(5vw, -7vh) scale(1.25); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes wc-spin { to { transform: rotate(360deg); } }
+@keyframes wc-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2.5vh); }
+}
+@keyframes wc-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.wc-orb      { will-change: transform; }
+.wc-drift-a  { animation: wc-drift-a 26s ease-in-out infinite; }
+.wc-drift-b  { animation: wc-drift-b 32s ease-in-out infinite; }
+.wc-drift-c  { animation: wc-drift-c 38s ease-in-out infinite; }
+.wc-ball     { animation: wc-spin 60s linear infinite, wc-float 12s ease-in-out infinite; will-change: transform; }
+.wc-ball-2   { animation: wc-spin 90s linear infinite reverse, wc-float 16s ease-in-out infinite; will-change: transform; }
+.wc-marquee  { animation: wc-marquee 70s linear infinite; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-drift-a, .wc-drift-b, .wc-drift-c, .wc-ball, .wc-ball-2, .wc-marquee { animation: none; }
+}
