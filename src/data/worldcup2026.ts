@@ -7,6 +7,12 @@ export interface WCMatch {
   away: string;
   venue: string;
   stage: string;
+  /** live status from the feed: "pre" | "in" | "post" (undefined in the bundled baseline) */
+  state?: "pre" | "in" | "post";
+  /** short status text from the feed, e.g. "FT", "HT", "67'" */
+  detail?: string;
+  homeScore?: number | null;
+  awayScore?: number | null;
 }
 
 export const WORLD_CUP_2026: WCMatch[] = [
