@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import { WORLD_CUP_2026, type WCMatch } from "@/data/worldcup2026";
 
-// Live 2026 World Cup schedule. Pulls fixtures from ESPN's public API (which fills in
-// knockout teams as they qualify) and is refreshed at most once every 24h. If the upstream
-// is unavailable or returns too little, we serve the bundled baseline so the UI never breaks.
+// Live 2026 World Cup schedule + scores from ESPN's public API. Fixtures (and knockout teams,
+// as they qualify) refresh daily; in-progress scores refresh on a 30s window so the UI can poll
+// frequently while a match is live. Falls back to the bundled baseline if upstream is unavailable.
 export const runtime = "nodejs";
-export const revalidate = 86400;
+export const revalidate = 30;
 
-const DAY = 86400;
 const RANGES = ["20260611-20260630", "20260701-20260719"];
 const SLUG: Record<string, string> = {
   "group-stage": "Group Stage",
@@ -28,20 +27,27 @@ function label(slug: string): string {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function toNum(v: unknown): number | null {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
 interface EspnEvent {
   id: string;
   date: string;
   season?: { slug?: string };
   competitions?: Array<{
     venue?: { fullName?: string };
-    competitors?: Array<{ homeAway?: string; team?: { displayName?: string } }>;
+    status?: { type?: { state?: string; shortDetail?: string } };
+    competitors?: Array<{ homeAway?: string; score?: string; team?: { displayName?: string } }>;
   }>;
+  status?: { type?: { state?: string; shortDetail?: string } };
 }
 
 async function fetchRange(rng: string): Promise<EspnEvent[]> {
   const res = await fetch(
     `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=${rng}`,
-    { next: { revalidate: DAY }, headers: { "User-Agent": "livestreamhub" } }
+    { next: { revalidate: 30 }, headers: { "User-Agent": "livestreamhub" } }
   );
   if (!res.ok) throw new Error(`ESPN ${res.status}`);
   const data = (await res.json()) as { events?: EspnEvent[] };
@@ -57,29 +63,34 @@ export async function GET() {
     const matches: WCMatch[] = [];
     for (const e of byId.values()) {
       const comp = e.competitions?.[0] ?? {};
-      const sides: Record<string, string> = {};
-      for (const c of comp.competitors ?? []) {
-        if (c.homeAway && c.team?.displayName) sides[c.homeAway] = c.team.displayName;
-      }
+      const home = comp.competitors?.find((c) => c.homeAway === "home");
+      const away = comp.competitors?.find((c) => c.homeAway === "away");
+      const t = comp.status?.type ?? e.status?.type ?? {};
+      const state = (t.state as WCMatch["state"]) ?? "pre";
       let kickoff = e.date;
       if (kickoff && !kickoff.endsWith("Z") && !kickoff.includes("+")) kickoff += "Z";
       matches.push({
         kickoff,
-        home: sides.home ?? "TBD",
-        away: sides.away ?? "TBD",
+        home: home?.team?.displayName ?? "TBD",
+        away: away?.team?.displayName ?? "TBD",
         venue: comp.venue?.fullName ?? "",
         stage: label(e.season?.slug ?? ""),
+        state,
+        detail: t.shortDetail ?? "",
+        homeScore: state === "pre" ? null : toNum(home?.score),
+        awayScore: state === "pre" ? null : toNum(away?.score),
       });
     }
     matches.sort((a, b) => +new Date(a.kickoff) - +new Date(b.kickoff));
     if (matches.length < 50) throw new Error(`only ${matches.length} events`);
+    const live = matches.filter((m) => m.state === "in").length;
     return NextResponse.json(
-      { source: "espn", count: matches.length, matches },
-      { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=86400" } }
+      { source: "espn", count: matches.length, live, matches },
+      { headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120" } }
     );
   } catch {
     return NextResponse.json(
-      { source: "bundled", count: WORLD_CUP_2026.length, matches: WORLD_CUP_2026 },
+      { source: "bundled", count: WORLD_CUP_2026.length, live: 0, matches: WORLD_CUP_2026 },
       { headers: { "Cache-Control": "public, s-maxage=3600" } }
     );
   }
