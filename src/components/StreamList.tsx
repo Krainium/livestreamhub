@@ -81,7 +81,7 @@
     return (
       <div className="flex flex-col gap-4 overflow-y-auto pr-1" style={{ maxHeight: "70vh" }}>
         {Object.entries(grouped).map(([event, channels]) => (
-          <div key={event} className="rounded-xl border border-white/10 bg-white/5 p-3">
+          <div key={event} className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-md">
             <h3 className="mb-2 text-sm font-semibold text-zinc-200">{event}</h3>
             <div className="flex flex-col gap-1">
               {channels.map((s) => (
