@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { WORLD_CUP_2026, type WCMatch } from "@/data/worldcup2026";
 
+const REFRESH_MS = 24 * 60 * 60 * 1000; // re-pull the live schedule once a day
+
 function fmtCountdown(ms: number): string {
   if (ms <= 0) return "kicked off";
   const m = Math.floor(ms / 60000);
@@ -18,17 +20,37 @@ export default function WorldCupSidebar() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState(0);
+  const [data, setData] = useState<WCMatch[]>(WORLD_CUP_2026);
 
   useEffect(() => {
     setMounted(true);
     setNow(Date.now());
-    const t = setInterval(() => setNow(Date.now()), 30000);
-    return () => clearInterval(t);
+    const tick = setInterval(() => setNow(Date.now()), 30000);
+
+    let alive = true;
+    const pull = async () => {
+      try {
+        const res = await fetch("/api/worldcup", { cache: "no-store" });
+        if (!res.ok) return;
+        const json = (await res.json()) as { matches?: WCMatch[] };
+        if (alive && Array.isArray(json.matches) && json.matches.length) setData(json.matches);
+      } catch {
+        /* keep bundled fallback */
+      }
+    };
+    pull();
+    const refresh = setInterval(pull, REFRESH_MS);
+
+    return () => {
+      alive = false;
+      clearInterval(tick);
+      clearInterval(refresh);
+    };
   }, []);
 
   const matches = useMemo(
-    () => [...WORLD_CUP_2026].sort((a, b) => +new Date(a.kickoff) - +new Date(b.kickoff)),
-    []
+    () => [...data].sort((a, b) => +new Date(a.kickoff) - +new Date(b.kickoff)),
+    [data]
   );
 
   const nextIdx = useMemo(
@@ -64,6 +86,7 @@ export default function WorldCupSidebar() {
       else out.push({ day, items: [{ m, i }] });
     });
     return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matches, mounted]);
 
   return (
@@ -133,7 +156,7 @@ export default function WorldCupSidebar() {
               ) : (
                 grouped.map((g) => (
                   <div key={g.day} className="mb-5">
-                    <h3 className="sticky top-0 mb-2 bg-zinc-950/90 py-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    <h3 className="mb-2 py-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
                       {g.day}
                     </h3>
                     <div className="flex flex-col gap-1.5">
