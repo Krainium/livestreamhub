@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
   import type { NextRequest } from "next/server";
-  import streamsData from "@/data/streams.json";
   import { geoSort } from "@/lib/geo";
+  import { getStreamList } from "@/lib/streams";
 
   export const runtime = "nodejs";
 
@@ -69,8 +69,9 @@ import { NextResponse } from "next/server";
       req.nextUrl.searchParams.get("country") ||
       "";
 
+    const base = (await getStreamList()) as unknown as StreamDef[];
     const probed = await Promise.all(
-      (streamsData as StreamDef[]).map((s) =>
+      base.map((s) =>
         probeOne(s).catch(() => ({ ...s, status: "error", note: "probe failed" }))
       )
     );
