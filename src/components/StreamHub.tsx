@@ -1,6 +1,6 @@
 "use client";
 
-  import { useCallback, useEffect, useMemo, useState } from "react";
+  import { useCallback, useEffect, useMemo, useRef, useState } from "react";
   import StreamList from "@/components/StreamList";
   import WorldCupSidebar from "@/components/WorldCupSidebar";
   import VideoPlayer from "@/components/VideoPlayer";
@@ -64,13 +64,14 @@
       }
     }, [country]);
 
-    // Self-refresh: re-probe on mount and every 90s so statuses (and the
-    // per-channel uptime sparkline) stay live without a manual refresh. The
-    // page no longer relies on the dead VPS for fresh status.
+    // Refresh statuses once, only on first page load — NOT on an interval, so
+    // playback is never interrupted while you're watching. Use the Refresh
+    // button to re-check on demand.
+    const didInitialLoad = useRef(false);
     useEffect(() => {
+      if (didInitialLoad.current) return;
+      didInitialLoad.current = true;
       loadStreams();
-      const id = setInterval(loadStreams, 90_000);
-      return () => clearInterval(id);
     }, [loadStreams]);
 
     const selected = streams.find((s) => s.id === selectedId) || null;
