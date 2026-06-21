@@ -52,7 +52,7 @@ function parseLiveData(live: { data?: Array<{ web_link?: string; extra?: string 
     // Ignore the upstream EVENT_NAME — it's often a stale/false fixture label
     // (e.g. a match that isn't actually playing). Group positionally instead so
     // the UI never shows a misleading event name, regardless of the stream.
-    const event = e === 0 ? "Live" : "Backup Channels";
+    const event = e === 0 ? "Live" : "live 2";
     let chans: Array<{ CHANNEL_NAME?: string; CHANNEL_URL?: string }> = [];
     try { chans = JSON.parse(ev.extra || "[]"); } catch {}
     for (const c of chans) {
