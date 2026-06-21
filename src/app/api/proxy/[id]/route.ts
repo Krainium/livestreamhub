@@ -171,55 +171,55 @@ export async function GET(
       return new Response(`Upstream error ${upstream.status}`, { status: upstream.status });
     }
 
-    const buf = Buffer.from(await upstream.arrayBuffer());
-    const preview = buf.slice(0, 300).toString("utf-8");
-
     const resHeaders: Record<string, string> = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
     };
-
-    if (preview.includes("#EXTM3U") || preview.includes("#extm3u")) {
-      const rewritten = rewriteM3u8(buf.toString("utf-8"), streamId, target, !!stream.referer);
-      return new Response(rewritten, {
-        headers: {
-          ...resHeaders,
-          "Content-Type": "application/vnd.apple.mpegurl",
-          "Cache-Control": "no-cache, no-store",
-        },
-      });
-    }
-
-    if (preview.match(/<[Mm][Pp][Dd]/)) {
-      const rewritten = rewriteMpd(
-        buf.toString("utf-8"),
-        streamId,
-        target,
-        !!stream.referer,
-        stream.drm_kid ?? undefined
-      );
-      return new Response(rewritten, {
-        headers: {
-          ...resHeaders,
-          "Content-Type": "application/dash+xml",
-          "Cache-Control": "no-cache, no-store",
-        },
-      });
-    }
-
-    for (const [k, v] of upstream.headers.entries()) {
-      const kl = k.toLowerCase();
-      if (!["content-encoding", "transfer-encoding", "connection"].includes(kl)) {
-        resHeaders[k] = v;
+    const copyHeaders = () => {
+      for (const [k, v] of upstream.headers.entries()) {
+        const kl = k.toLowerCase();
+        if (!["content-encoding", "transfer-encoding", "connection"].includes(kl)) {
+          resHeaders[k] = v;
+        }
       }
-    }
-    resHeaders["Access-Control-Allow-Origin"] = "*";
-    resHeaders["Content-Length"] = String(buf.length);
+    };
 
-    return new Response(buf, {
-      status: upstream.status,
-      headers: resHeaders,
-    });
+    // Decide manifest vs media segment WITHOUT consuming the body, so segments
+    // stream straight through (no full in-memory buffering → much less latency
+    // and far less buffering on live playback). Only manifests are buffered,
+    // since they must be rewritten to route sub-resources back through here.
+    const ct = (upstream.headers.get("content-type") || "").toLowerCase();
+    const path = target.toLowerCase().split("?")[0];
+    const isManifest =
+      ct.includes("mpegurl") || ct.includes("dash+xml") || ct.includes("/xml") ||
+      path.endsWith(".m3u8") || path.endsWith(".mpd") ||
+      (!!stream.referer && path.endsWith(".php"));
+
+    if (isManifest) {
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      const text = buf.toString("utf-8");
+      const preview = text.slice(0, 300);
+
+      if (preview.includes("#EXTM3U") || preview.includes("#extm3u")) {
+        return new Response(rewriteM3u8(text, streamId, target, !!stream.referer), {
+          headers: { ...resHeaders, "Content-Type": "application/vnd.apple.mpegurl", "Cache-Control": "no-cache, no-store" },
+        });
+      }
+      if (preview.match(/<[Mm][Pp][Dd]/)) {
+        return new Response(
+          rewriteMpd(text, streamId, target, !!stream.referer, stream.drm_kid ?? undefined),
+          { headers: { ...resHeaders, "Content-Type": "application/dash+xml", "Cache-Control": "no-cache, no-store" } }
+        );
+      }
+      // Looked like a manifest by URL/type but wasn't — return as-is.
+      copyHeaders();
+      resHeaders["Content-Length"] = String(buf.length);
+      return new Response(buf, { status: upstream.status, headers: resHeaders });
+    }
+
+    // Media segment (or any non-manifest): stream the body through unbuffered.
+    copyHeaders();
+    return new Response(upstream.body, { status: upstream.status, headers: resHeaders });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     return new Response(`Proxy error: ${msg}`, { status: 502 });
