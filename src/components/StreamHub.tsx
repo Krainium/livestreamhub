@@ -64,6 +64,15 @@
       }
     }, [country]);
 
+    // Self-refresh: re-probe on mount and every 90s so statuses (and the
+    // per-channel uptime sparkline) stay live without a manual refresh. The
+    // page no longer relies on the dead VPS for fresh status.
+    useEffect(() => {
+      loadStreams();
+      const id = setInterval(loadStreams, 90_000);
+      return () => clearInterval(id);
+    }, [loadStreams]);
+
     const selected = streams.find((s) => s.id === selectedId) || null;
     const manifest = useMemo(
       () => (selected ? buildManifest(selected) : null),
