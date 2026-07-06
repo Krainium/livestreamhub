@@ -1,7 +1,11 @@
 import type { StreamEntry } from "@/types/stream";
 
-const RC_ENDPOINT =
-  "https://punjabpolicenews.com/alk_apps/web_apis_lftv_1/getfromserver.php";
+const RC_URL =
+  "https://firebaseremoteconfig.googleapis.com/v1/projects/753357191716/namespaces/firebase:fetch";
+const RC_API_KEY =
+  process.env.RC_API_KEY ?? "AIzaSyDzCGErnKWoe6e9vSv2EokZBZL0PSU6QjY";
+const RC_APP_ID = "1:753357191716:android:bddad915fc79f2319fb6b1";
+const RC_PACKAGE = "bae.livefootballtv.hdstream.soccerscore";
 
 interface RCChannel {
   CHANNEL_NAME: string;
@@ -11,11 +15,6 @@ interface RCChannel {
 interface RCItem {
   web_link: string;
   extra: string;
-}
-
-interface RCResponse {
-  error: boolean | string;
-  data?: RCItem[];
 }
 
 function parseUrl(raw: string): {
@@ -69,27 +68,38 @@ function parseUrl(raw: string): {
 }
 
 export async function fetchFirebaseRCStreams(): Promise<StreamEntry[]> {
-  const key = process.env.FIREBASE_RC_API_KEY ?? "4207";
-  const body = `my_key=${encodeURIComponent(key)}`;
-
-  const res = await fetch(RC_ENDPOINT, {
+  const res = await fetch(`${RC_URL}?key=${RC_API_KEY}`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Android-Package": RC_PACKAGE,
+    },
+    body: JSON.stringify({
+      appInstanceId: "web_probe",
+      appId: RC_APP_ID,
+      countryCode: "US",
+      languageCode: "en-US",
+      platformVersion: "33",
+      timeZone: "UTC",
+      appVersion: "1.9",
+      packageName: RC_PACKAGE,
+      sdkVersion: "21.6.0",
+    }),
     signal: AbortSignal.timeout(10000),
   });
 
   if (!res.ok) throw new Error(`RC fetch failed: ${res.status}`);
-  const payload: RCResponse = await res.json();
-  if (payload.error === true || payload.error === "true")
-    throw new Error("RC API error");
+  const payload = await res.json();
+  const liveStr = payload?.entries?.LIVE_DATA;
+  if (!liveStr) throw new Error("LIVE_DATA missing from RC response");
+
+  const live = JSON.parse(liveStr) as { data?: RCItem[] };
+  const items = live.data ?? [];
 
   const entries: StreamEntry[] = [];
   let id = 1;
 
-  for (const item of payload.data ?? []) {
-    const eventName = "Live";
-
+  for (const item of items) {
     let channels: RCChannel[] = [];
     try {
       channels = JSON.parse(item.extra) as RCChannel[];
@@ -100,7 +110,7 @@ export async function fetchFirebaseRCStreams(): Promise<StreamEntry[]> {
       const parsed = parseUrl(ch.CHANNEL_URL);
       entries.push({
         id: id++,
-        event: eventName,
+        event: "Live",
         channel: ch.CHANNEL_NAME,
         raw_url: ch.CHANNEL_URL,
         stream_url: parsed.url,
