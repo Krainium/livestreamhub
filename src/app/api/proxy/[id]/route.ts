@@ -142,22 +142,29 @@ export async function GET(
 ) {
   const { id } = await params;
   const streamId = parseInt(id, 10);
-  const stream = (streamsData as StreamDef[]).find((s) => s.id === streamId);
-
-  if (!stream) {
-    return new Response("Stream not found", { status: 404 });
-  }
 
   const { searchParams } = new URL(request.url);
   const urlParam = searchParams.get("url");
-  const target = urlParam ? decodeURIComponent(urlParam) : stream.stream_url;
+  const refParam = searchParams.get("ref");
+  const kidParam = searchParams.get("kid");
+
+  // Look up static stream for fallback values; URL param takes precedence
+  const stream = (streamsData as StreamDef[]).find((s) => s.id === streamId);
+  const target = urlParam ? decodeURIComponent(urlParam) : (stream?.stream_url ?? null);
+
+  if (!target) {
+    return new Response("Stream not found", { status: 404 });
+  }
 
   if (target.includes("$Number$") || target.includes("$Time$")) {
     return new Response("Unresolved DASH segment template", { status: 400 });
   }
 
+  const referer = refParam ? decodeURIComponent(refParam) : (stream?.referer ?? null);
+  const drmKid = kidParam ? decodeURIComponent(kidParam) : (stream?.drm_kid ?? null);
+
   const reqHeaders: Record<string, string> = { "User-Agent": UA, "Accept": "*/*" };
-  if (stream.referer) reqHeaders["Referer"] = stream.referer;
+  if (referer) reqHeaders["Referer"] = referer;
   const rangeHeader = request.headers.get("range");
   if (rangeHeader) reqHeaders["Range"] = rangeHeader;
 
@@ -180,7 +187,7 @@ export async function GET(
     };
 
     if (preview.includes("#EXTM3U") || preview.includes("#extm3u")) {
-      const rewritten = rewriteM3u8(buf.toString("utf-8"), streamId, target, !!stream.referer);
+      const rewritten = rewriteM3u8(buf.toString("utf-8"), streamId, target, !!referer);
       return new Response(rewritten, {
         headers: {
           ...resHeaders,
@@ -195,8 +202,8 @@ export async function GET(
         buf.toString("utf-8"),
         streamId,
         target,
-        !!stream.referer,
-        stream.drm_kid ?? undefined
+        !!referer,
+        drmKid ?? undefined
       );
       return new Response(rewritten, {
         headers: {
