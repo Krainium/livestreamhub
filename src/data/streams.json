@@ -130,102 +130,6 @@
   {
     "id": 9,
     "event": "Live",
-    "channel": "KooraCity Arabic",
-    "raw_url": "https://do.nuvolda.store/guian3_720/index.m3u8",
-    "stream_url": "https://do.nuvolda.store/guian3_720/index.m3u8",
-    "stream_type": "hls",
-    "referer": null,
-    "drm_scheme": null,
-    "drm_kid": null,
-    "drm_key": null,
-    "source": "FIREBASE_RC",
-    "status": "unknown",
-    "note": "",
-    "qualities": null
-  },
-  {
-    "id": 10,
-    "event": "Live",
-    "channel": "ITV English \ud83c\udf10",
-    "raw_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/5",
-    "stream_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/5",
-    "stream_type": "other",
-    "referer": null,
-    "drm_scheme": null,
-    "drm_kid": null,
-    "drm_key": null,
-    "source": "FIREBASE_RC",
-    "status": "unknown",
-    "note": "",
-    "qualities": null
-  },
-  {
-    "id": 11,
-    "event": "Live",
-    "channel": "TSN English \ud83c\udf10",
-    "raw_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/1",
-    "stream_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/1",
-    "stream_type": "other",
-    "referer": null,
-    "drm_scheme": null,
-    "drm_kid": null,
-    "drm_key": null,
-    "source": "FIREBASE_RC",
-    "status": "unknown",
-    "note": "",
-    "qualities": null
-  },
-  {
-    "id": 12,
-    "event": "Live",
-    "channel": "FOX English \ud83c\udf10",
-    "raw_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/3",
-    "stream_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/3",
-    "stream_type": "other",
-    "referer": null,
-    "drm_scheme": null,
-    "drm_kid": null,
-    "drm_key": null,
-    "source": "FIREBASE_RC",
-    "status": "unknown",
-    "note": "",
-    "qualities": null
-  },
-  {
-    "id": 13,
-    "event": "Live",
-    "channel": "beIN French \ud83c\udf10",
-    "raw_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/7",
-    "stream_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/7",
-    "stream_type": "other",
-    "referer": null,
-    "drm_scheme": null,
-    "drm_kid": null,
-    "drm_key": null,
-    "source": "FIREBASE_RC",
-    "status": "unknown",
-    "note": "",
-    "qualities": null
-  },
-  {
-    "id": 14,
-    "event": "Live",
-    "channel": "Telemound \ud83c\udf10",
-    "raw_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/11",
-    "stream_url": "https://embed.st/embed/admin/ppv-mexico-vs-england/11",
-    "stream_type": "other",
-    "referer": null,
-    "drm_scheme": null,
-    "drm_kid": null,
-    "drm_key": null,
-    "source": "FIREBASE_RC",
-    "status": "unknown",
-    "note": "",
-    "qualities": null
-  },
-  {
-    "id": 15,
-    "event": "Live",
     "channel": "Fox HD \ud83c\udf10",
     "raw_url": "https://xyzstreams.st/wc-1-embed.html",
     "stream_url": "https://xyzstreams.st/wc-1-embed.html",
@@ -240,23 +144,7 @@
     "qualities": null
   },
   {
-    "id": 16,
-    "event": "Live",
-    "channel": "TSN Fast \ud83c\udf10",
-    "raw_url": "https://ziangel.com/rampages/brazil-vs-norway/",
-    "stream_url": "https://ziangel.com/rampages/brazil-vs-norway/",
-    "stream_type": "other",
-    "referer": null,
-    "drm_scheme": null,
-    "drm_kid": null,
-    "drm_key": null,
-    "source": "FIREBASE_RC",
-    "status": "unknown",
-    "note": "",
-    "qualities": null
-  },
-  {
-    "id": 17,
+    "id": 10,
     "event": "Live",
     "channel": "TSN HD \ud83c\udf10",
     "raw_url": "https://xyzstreams.st/wc-7-embed.html",
@@ -272,7 +160,7 @@
     "qualities": null
   },
   {
-    "id": 18,
+    "id": 11,
     "event": "Live",
     "channel": "ITV HD \ud83c\udf10",
     "raw_url": "https://xyzstreams.st/wc-3-embed.html",
@@ -288,23 +176,7 @@
     "qualities": null
   },
   {
-    "id": 19,
-    "event": "Live",
-    "channel": "Arabic HD \ud83c\udf10",
-    "raw_url": "https://xyzstreams.st/wc-17-embed.html",
-    "stream_url": "https://xyzstreams.st/wc-17-embed.html",
-    "stream_type": "other",
-    "referer": null,
-    "drm_scheme": null,
-    "drm_kid": null,
-    "drm_key": null,
-    "source": "FIREBASE_RC",
-    "status": "unknown",
-    "note": "",
-    "qualities": null
-  },
-  {
-    "id": 20,
+    "id": 12,
     "event": "Live",
     "channel": "RTE (Updated App) \ud83c\udf10",
     "raw_url": "https://vivtops.st/channel4",
@@ -320,7 +192,7 @@
     "qualities": null
   },
   {
-    "id": 21,
+    "id": 13,
     "event": "Live",
     "channel": "NPO Extra \ud83c\udf10",
     "raw_url": "https://vivtops.st/channel3",
@@ -336,7 +208,7 @@
     "qualities": null
   },
   {
-    "id": 22,
+    "id": 14,
     "event": "Live",
     "channel": "ITV HD",
     "raw_url": "http://193.47.62.59/hls/BcdTHXCZzsssQ.m3u8|Referer=http://www.fawanews.sc/",
@@ -352,7 +224,7 @@
     "qualities": null
   },
   {
-    "id": 23,
+    "id": 15,
     "event": "Live",
     "channel": "SD Fast Link",
     "raw_url": "http://193.47.62.42/hls/BcdTHXCZzsss.m3u8|Referer=http://www.fawanews.sc/",
@@ -368,7 +240,7 @@
     "qualities": null
   },
   {
-    "id": 24,
+    "id": 16,
     "event": "Live",
     "channel": "Arabic SD",
     "raw_url": "http://193.47.62.47/hls/BcdTHXCZckkkqr.m3u8|Referer=http://www.fawanews.sc/",
@@ -384,7 +256,7 @@
     "qualities": null
   },
   {
-    "id": 25,
+    "id": 17,
     "event": "Live",
     "channel": "C Sports HD",
     "raw_url": "https://dash2.antik.sk/stream/nvidia_ct_sport/playlist_cenc.mpd*11223344556677889900112233445566:4b80724d0ef86bcb2c21f7999d67739d",
@@ -400,7 +272,7 @@
     "qualities": null
   },
   {
-    "id": 26,
+    "id": 18,
     "event": "Live",
     "channel": "PTV Sports",
     "raw_url": "https://live.incableinternet.com/v/kooker_ptvsportshd/kooker_ptvsportshd.m3u8",
@@ -416,7 +288,7 @@
     "qualities": null
   },
   {
-    "id": 27,
+    "id": 19,
     "event": "Live",
     "channel": "TIPIK Sports",
     "raw_url": "https://c9851ec-rbm-hilv-fsly.cdn.redbee.live/L26/6b640fa2/a765d074.isml/dash/.mpd*adca25b8779e4168a0cd710f59f61ccf:be5383ed3cd8079f4ffe78ad067f476a",
