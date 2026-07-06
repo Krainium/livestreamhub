@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { fetchFirebaseRCStreams } from "@/lib/firebase-rc";
-import streamsData from "@/data/streams.json";
+import { getStreamList } from "@/lib/streams";
 import { geoSort } from "@/lib/geo";
 
 export const runtime = "nodejs";
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
   try {
     liveStreams = (await fetchFirebaseRCStreams()) as StreamDef[];
   } catch {
-    liveStreams = streamsData as StreamDef[];
+    liveStreams = (await getStreamList()) as StreamDef[];
   }
 
   const probed = await Promise.all(
