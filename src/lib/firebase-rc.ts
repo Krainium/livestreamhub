@@ -88,11 +88,7 @@ export async function fetchFirebaseRCStreams(): Promise<StreamEntry[]> {
   let id = 1;
 
   for (const item of payload.data ?? []) {
-    let eventName = "Live";
-    try {
-      const wl = JSON.parse(item.web_link) as { EVENT_NAME?: string };
-      eventName = wl.EVENT_NAME ?? "Live";
-    } catch {}
+    const eventName = "Live";
 
     let channels: RCChannel[] = [];
     try {
