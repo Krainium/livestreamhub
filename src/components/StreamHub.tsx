@@ -46,10 +46,6 @@ export default function StreamHub({
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    recordHistory(initialStreams.map((s) => ({ id: s.id, status: s.status })));
-  }, []);
-
   const loadStreams = useCallback(async () => {
     setError(null);
     setRefreshing(true);
@@ -68,6 +64,12 @@ export default function StreamHub({
       setRefreshing(false);
     }
   }, [country]);
+
+  useEffect(() => {
+    recordHistory(initialStreams.map((s) => ({ id: s.id, status: s.status })));
+    loadStreams();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const selected = streams.find((s) => s.id === selectedId) || null;
   const manifest = useMemo(
