@@ -7,6 +7,8 @@ import VideoPlayer from "@/components/VideoPlayer";
 import type { ManifestInfo, StreamEntry } from "@/types/stream";
 import { recordHistory } from "@/lib/history";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "";
+
 interface Props {
   initialStreams: StreamEntry[];
   initialSelectedId: number | null;
@@ -18,7 +20,7 @@ function buildManifest(stream: StreamEntry): ManifestInfo {
   const params = new URLSearchParams({ url: stream.stream_url });
   if (stream.referer) params.set("ref", stream.referer);
   if (stream.drm_kid) params.set("kid", stream.drm_kid);
-  const proxyUrl = `/api/proxy/${stream.id}?${params.toString()}`;
+  const proxyUrl = `${API_BASE}/api/proxy/${stream.id}?${params.toString()}`;
 
   if (stream.stream_type === "dash") {
     const hasClearKey = Boolean(stream.drm_kid && stream.drm_key);
@@ -51,8 +53,8 @@ export default function StreamHub({
     setRefreshing(true);
     try {
       const url = country
-        ? `/api/streams/refresh?country=${encodeURIComponent(country)}`
-        : "/api/streams/refresh";
+        ? `${API_BASE}/api/streams/refresh?country=${encodeURIComponent(country)}`
+        : API_BASE + "/api/streams/refresh";
       const res = await fetch(url, { method: "POST", cache: "no-store" });
       if (!res.ok) throw new Error(`API ${res.status}`);
       const data: StreamEntry[] = await res.json();
